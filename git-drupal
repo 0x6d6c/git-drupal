@@ -52,6 +52,6 @@ done
 command="$1"
 shift
 case "$command" in
-	add|list|move|remove|update) ;;
+	add|move|remove|update) ;;
 	*) die "Unknown command '$command'" ;;
 esac
