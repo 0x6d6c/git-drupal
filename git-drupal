@@ -55,3 +55,10 @@ case "$command" in
 	add|move|remove|update) ;;
 	*) die "Unknown command '$command'" ;;
 esac
+
+# Require prefix for commands.
+if [ "$command" = "add" -o "$command" = "move" ]; then
+	if [ -z "$prefix" ]; then
+		die "You must provide the --prefix option."
+	fi
+fi
