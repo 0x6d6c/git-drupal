@@ -62,3 +62,22 @@ if [ "$command" = "add" -o "$command" = "move" ]; then
 		die "You must provide the --prefix option."
 	fi
 fi
+
+# Validate project (module/theme) name.
+# The project name must start with a letter and contains only of lowercase
+# letters, digits and underscores.
+# See Drupal docs: https://www.drupal.org/node/1074362
+if [[ "$1" =~ ^([a-z][a-z0-9\_]{0,}[^_])$ ]]; then
+	PROJECT="$1"
+else
+	die "Project name MUST start with a letter and contain only of lowercase letters, digits and underscores."
+fi
+
+# Validate project (module/theme) version.
+# The project version must start with a digit.
+# See Drupal docs: https://www.drupal.org/node/1015226
+if [[ "$2" =~ ^[0-9].* ]]; then
+	VERSION="$2"
+else
+	die "Project version MUST start with a digit."
+fi
