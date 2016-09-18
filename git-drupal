@@ -63,60 +63,60 @@ if [ "$command" = "add" -o "$command" = "move" ]; then
 	fi
 fi
 
-# Validate project (module/theme) name.
-# The project name must start with a letter and contains only of lowercase
+# Validate extension (module/theme) name.
+# The extension name must start with a letter and contains only of lowercase
 # letters, digits and underscores.
 # See Drupal docs: https://www.drupal.org/node/1074362
 if [[ "$1" =~ ^([a-z][a-z0-9\_]{0,}[^_])$ ]]; then
-	PROJECT="$1"
+	EXTENSION="$1"
 else
-	die "Project name MUST start with a letter and contain only of lowercase letters, digits and underscores."
+	die "Extension name MUST start with a letter and contain only of lowercase letters, digits and underscores."
 fi
 
-# Validate project (module/theme) version.
-# The project version must start with a digit [3-9] (Drupal GIT repository has
+# Validate extension (module/theme) version.
+# The extension version must start with a digit [3-9] (Drupal GIT repository has
 # no releases under 3.x: http://cgit.drupalcode.org/drupal/refs).
 # See Drupal docs: https://www.drupal.org/node/1015226
 if [[ "$2" =~ ^[3-9].* ]]; then
 	VERSION="$2"
 else
-	die "Project version MUST start with a digit [3-9]."
+	die "Extension version MUST start with a digit [3-9]."
 fi
 
 # Drupal
 ftp="https://ftp.drupal.org/files/projects"
 http="https://www.drupal.org/project"
 
-# Check whether project (module/theme) with the given name exists at drupal.org
+# Check whether extension (module/theme) with the given name exists at drupal.org
 # website.
-project_url_exists() {
-	local http_status=$(curl --location --output /dev/null --silent --head --fail -A $0 -w %{http_code} $http/$PROJECT)
-	say "Looking for project '$PROJECT'..."
+extension_url_exists() {
+	local http_status=$(curl --location --output /dev/null --silent --head --fail -A $0 -w %{http_code} $http/$EXTENSION)
+	say "Looking for extension '$EXTENSION'..."
 
 	if [ $http_status -ne 200 ]; then
 		case "$http_status" in
-			404) die "Project '$PROJECT' hasn't been found." ;;
-			*) die "Project URL is not accessible (HTTP response: $http_status)" ;;
+			404) die "Extension '$EXTENSION' hasn't been found." ;;
+			*) die "Extension URL is not accessible (HTTP response: $http_status)" ;;
 		esac
 	else
-		say "[OK] Project '$PROJECT' found."
+		say "[OK] Extension '$EXTENSION' found."
 	fi
 }
 
-# Check whether version of the project (module/theme) exists by requesting
-# the archive (.tar.gz) filename containing of the project name and the version
+# Check whether version of the extension (module/theme) exists by requesting
+# the archive (.tar.gz) filename containing of the extension name and the version
 # number.
 version_url_exists() {
-	local archive="$PROJECT-$VERSION.tar.gz"
+	local archive="$EXTENSION-$VERSION.tar.gz"
 	local ftp_status=$(curl --location --output /dev/null --silent --head --fail -A $0 -w %{http_code} $ftp/$archive)
 	say "Looking for version '$VERSION'..."
 
 	if [[ $ftp_status -ne 200 ]]; then
 		case "$ftp_status" in
-			404) die "Version '$VERSION' of '$PROJECT' hasn't been found." ;;
+			404) die "Version '$VERSION' of '$EXTENSION' hasn't been found." ;;
 			*) die "Version URL is not accessible (HTTP response: $ftp_status)" ;;
 		esac
 	else
-		say "[OK] Version '$VERSION' of '$PROJECT' found."
+		say "[OK] Version '$VERSION' of '$EXTENSION' found."
 	fi
 }
