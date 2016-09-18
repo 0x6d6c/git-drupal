@@ -74,10 +74,11 @@ else
 fi
 
 # Validate project (module/theme) version.
-# The project version must start with a digit.
+# The project version must start with a digit [3-9] (Drupal GIT repository has
+# no releases under 3.x: http://cgit.drupalcode.org/drupal/refs).
 # See Drupal docs: https://www.drupal.org/node/1015226
-if [[ "$2" =~ ^[0-9].* ]]; then
+if [[ "$2" =~ ^[3-9].* ]]; then
 	VERSION="$2"
 else
-	die "Project version MUST start with a digit."
+	die "Project version MUST start with a digit [3-9]."
 fi
