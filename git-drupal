@@ -1,1 +1,57 @@
 #!/bin/sh
+#
+# Manages official Drupal modules & themes in repository.
+#
+# Copyright (C) 2016 Michał Lüth <michal.lueth@outlook.com>
+#
+
+# Add git core programs to $PATH.
+PATH=$PATH:$(git --exec-path)
+# Include git scriplet
+source git-sh-setup
+
+require_work_tree
+
+if [ $# -eq 0 ]; then
+		set -- -h
+fi
+
+# Script options
+OPTS_SPEC="\
+git drupal add    --prefix <prefix> <extension> <version>
+git drupal move   --prefix <prefix> <extension>
+git drupal remove <extension>
+git drupal update <extension> <version>
+--
+h,help            show help
+P,prefix=         name of subdirectory where extensions are stored
+m,message=        use the given message as the commit message for the merge commit
+"
+eval "$(echo "$OPTS_SPEC" | git rev-parse --parseopt -- "$@" || echo exit $?)"
+
+# Require to run a command from the toplevel of GIT repository.
+if [[ $(git rev-parse --show-toplevel) != $PWD ]]; then
+  die "You need to run this command from the toplevel of the working tree."
+fi
+
+prefix=
+message=
+
+#echo "Options: $*"
+while [ $# -gt 0 ]; do
+	opt="$1"
+	shift
+	case "$opt" in
+		-P) prefix="$1"; shift ;;
+		-m) message="$1"; shift ;;
+		--) break ;;
+		*) die "Unexpected option: $opt" ;;
+	esac
+done
+
+command="$1"
+shift
+case "$command" in
+	add|list|move|remove|update) ;;
+	*) die "Unknown command '$command'" ;;
+esac
