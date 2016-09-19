@@ -13,7 +13,7 @@ source git-sh-setup
 require_work_tree
 
 if [ $# -eq 0 ]; then
-		set -- -h
+	set -- -h
 fi
 
 # Script options
