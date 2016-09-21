@@ -12,6 +12,20 @@ source git-sh-setup
 
 require_work_tree
 
+requirements(){
+	local tools=(
+		curl
+		wget
+	)
+
+	for tool in "${tools[@]}"; do
+		if ! command -v $tool >/dev/null 2>&1; then
+			die "'$tool' command not found on your system. Use your package manager to install it."
+		fi
+	done
+}
+requirements
+
 if [ $# -eq 0 ]; then
 	set -- -h
 fi
