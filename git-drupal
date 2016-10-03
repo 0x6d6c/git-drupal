@@ -13,14 +13,14 @@ source git-sh-setup
 require_work_tree
 
 requirements(){
-	local tools=(
+	local cmd=(
 		curl
 		wget
 	)
 
-	for tool in "${tools[@]}"; do
-		if ! command -v $tool >/dev/null 2>&1; then
-			die "'$tool' command not found on your system. Use your package manager to install it."
+	for cmd in "${cmd[@]}"; do
+		if ! command -v $cmd >/dev/null 2>&1; then
+			die "'$cmd' command not found on your system. Use your package manager to install it."
 		fi
 	done
 }
