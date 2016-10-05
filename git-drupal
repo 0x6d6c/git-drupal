@@ -12,20 +12,6 @@ source git-sh-setup
 
 require_work_tree
 
-requirements(){
-	local cmd=(
-		curl
-		wget
-	)
-
-	for cmd in "${cmd[@]}"; do
-		if ! command -v $cmd >/dev/null 2>&1; then
-			die "'$cmd' command not found on your system. Use your package manager to install it."
-		fi
-	done
-}
-requirements
-
 if [ $# -eq 0 ]; then
 	set -- -h
 fi
@@ -42,6 +28,20 @@ P,prefix=         name of subdirectory where extensions are stored
 m,message=        use the given message as the commit message for the merge commit
 "
 eval "$(echo "$OPTS_SPEC" | git rev-parse --parseopt -- "$@" || echo exit $?)"
+
+requirements(){
+	local cmd=(
+		curl
+		wget
+	)
+
+	for cmd in "${cmd[@]}"; do
+		if ! command -v $cmd >/dev/null 2>&1; then
+			die "'$cmd' command not found on your system. Use your package manager to install it."
+		fi
+	done
+}
+requirements
 
 # Require to run a command from the toplevel of GIT repository.
 if [[ $(git rev-parse --show-toplevel) != $PWD ]]; then
