@@ -101,36 +101,43 @@ fi
 ftp="https://ftp.drupal.org/files/projects"
 http="https://www.drupal.org/project"
 
-# Check whether extension (module/theme) with the given name exists at drupal.org
-# website.
+# Try to determine extension type (module/theme) based on $prefix.
+case $prefix in
+	*modules*) extension_type="module" ;;
+	*themes*) extension_type="theme" ;;
+	*) extension_type="extension" ;;
+esac
+
+# Check whether extension (module/theme) exists at drupal.org by requesting the
+# extension URL containing of the extension name.
 extension_url_exists() {
 	local http_status=$(curl --location --output /dev/null --silent --head --fail -A $0 -w %{http_code} $http/$EXTENSION)
-	say "Looking for extension '$EXTENSION'..."
+	say "Looking for '$EXTENSION' $extension_type..."
 
 	if [ $http_status -ne 200 ]; then
 		case "$http_status" in
-			404) die "Extension '$EXTENSION' hasn't been found." ;;
-			*) die "Extension URL is not accessible (HTTP response: $http_status)" ;;
+			404) die "'$EXTENSION' $extension_type not found." ;;
+			*) die "${extension_type^} URL not accessible (HTTP response: $http_status)" ;;
 		esac
 	else
-		say "[OK] Extension '$EXTENSION' found."
+		say "[OK] '$EXTENSION' $extension_type found."
 	fi
 }
 
-# Check whether version of the extension (module/theme) exists by requesting
-# the archive (.tar.gz) filename containing of the extension name and the version
-# number.
+# Check whether extension (module/theme) version exists at drupal.org by
+# requesting the archive (.tar.gz) filename containing of the extension name and
+# the version number.
 version_url_exists() {
 	local archive="$EXTENSION-$VERSION.tar.gz"
 	local ftp_status=$(curl --location --output /dev/null --silent --head --fail -A $0 -w %{http_code} $ftp/$archive)
-	say "Looking for version '$VERSION'..."
+	say "Looking for '$VERSION' version of '$EXTENSION' $extension_type..."
 
 	if [[ $ftp_status -ne 200 ]]; then
 		case "$ftp_status" in
-			404) die "Version '$VERSION' of '$EXTENSION' hasn't been found." ;;
-			*) die "Version URL is not accessible (HTTP response: $ftp_status)" ;;
+			404) die "'$VERSION' version of '$EXTENSION' $extension_type not found." ;;
+			*) die "Version URL not accessible (HTTP response: $ftp_status)" ;;
 		esac
 	else
-		say "[OK] Version '$VERSION' of '$EXTENSION' found."
+		say "[OK] '$VERSION' version of '$EXTENSION' $extension_type found."
 	fi
 }
