@@ -77,6 +77,17 @@ if [ "$command" = "add" -o "$command" = "move" ]; then
 	fi
 fi
 
+# Try to determine extension type (module/theme) based on $prefix.
+case $prefix in
+	*modules*) extension_type="module" ;;
+	*themes*) extension_type="theme" ;;
+	*) extension_type="extension" ;;
+esac
+
+# Drupal
+ftp="https://ftp.drupal.org/files/projects"
+http="https://www.drupal.org/project"
+
 # Validate extension (module/theme) name.
 # The extension name must start with a letter and contains only of lowercase
 # letters, digits and underscores.
@@ -84,7 +95,7 @@ fi
 if [[ "$1" =~ ^([a-z][a-z0-9\_]{0,}[^_])$ ]]; then
 	EXTENSION="$1"
 else
-	die "Extension name MUST start with a letter and contain only of lowercase letters, digits and underscores."
+	die "${extension_type^} name MUST start with a letter and contain only of lowercase letters, digits and underscores."
 fi
 
 # Validate extension (module/theme) version.
@@ -94,19 +105,8 @@ fi
 if [[ "$2" =~ ^[3-9].* ]]; then
 	VERSION="$2"
 else
-	die "Extension version MUST start with a digit [3-9]."
+	die "${extension_type^} version MUST start with a digit [3-9]."
 fi
-
-# Drupal
-ftp="https://ftp.drupal.org/files/projects"
-http="https://www.drupal.org/project"
-
-# Try to determine extension type (module/theme) based on $prefix.
-case $prefix in
-	*modules*) extension_type="module" ;;
-	*themes*) extension_type="theme" ;;
-	*) extension_type="extension" ;;
-esac
 
 # Check whether extension (module/theme) exists at drupal.org by requesting the
 # extension URL containing of the extension name.
