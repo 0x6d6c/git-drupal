@@ -146,3 +146,12 @@ version_url_exists() {
 #
 # Custom git config file.
 config="$(git rev-parse --show-toplevel)/.drupal"
+
+# Current branch name.
+# If there are no commits yet (so there is no branch name available) set
+# 'master' as the current branch name.
+if ! $(git rev-parse --quiet --verify HEAD ?/dev/null); then
+	branch="master"
+else
+	branch="$(git rev-parse --abbrev-ref HEAD)"
+fi
