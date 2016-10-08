@@ -141,3 +141,8 @@ version_url_exists() {
 		say "[OK] '$VERSION' version of '$EXTENSION' $extension_type found."
 	fi
 }
+
+# GIT
+#
+# Custom git config file.
+config="$(git rev-parse --show-toplevel)/.drupal"
