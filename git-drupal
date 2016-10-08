@@ -44,7 +44,7 @@ requirements(){
 requirements
 
 # Require to run a command from the toplevel of GIT repository.
-if [[ $(git rev-parse --show-toplevel) != $PWD ]]; then
+if [ "$(git rev-parse --show-toplevel)" != "$PWD" ]; then
   die "You need to run this command from the toplevel of the working tree."
 fi
 
@@ -111,7 +111,7 @@ esac
 # Check whether extension (module/theme) exists at drupal.org by requesting the
 # extension URL containing of the extension name.
 extension_url_exists() {
-	local http_status=$(curl --location --output /dev/null --silent --head --fail -A $0 -w %{http_code} $http/$EXTENSION)
+	local http_status="$(curl --location --output /dev/null --silent --head --fail -A $0 -w %{http_code} $http/$EXTENSION)"
 	say "Looking for '$EXTENSION' $extension_type..."
 
 	if [ $http_status -ne 200 ]; then
@@ -129,7 +129,7 @@ extension_url_exists() {
 # the version number.
 version_url_exists() {
 	local archive="$EXTENSION-$VERSION.tar.gz"
-	local ftp_status=$(curl --location --output /dev/null --silent --head --fail -A $0 -w %{http_code} $ftp/$archive)
+	local ftp_status="$(curl --location --output /dev/null --silent --head --fail -A $0 -w %{http_code} $ftp/$archive)"
 	say "Looking for '$VERSION' version of '$EXTENSION' $extension_type..."
 
 	if [[ $ftp_status -ne 200 ]]; then
