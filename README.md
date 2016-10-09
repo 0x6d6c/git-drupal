@@ -8,6 +8,7 @@ This script has been **tested only on Linux** (and git 2.1.4) so it can be not
 compatible with other operating systems (definitely I am not going to port it
 for Windows&reg;). Additionally, it needs the following tools to be present on your
 system:
+
 - `curl` (tested with 7.42.1)
 - `tar` (tested with 1.28)
 - `wget` (tested with 1.16)
