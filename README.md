@@ -16,18 +16,18 @@ system:
 ## Usage
 
 ```
-usage: git drupal add    --prefix <prefix> <extension> <version>
-   or: git drupal move   --prefix <prefix> <extension>
-   or: git drupal remove <extension>
-   or: git drupal update <extension> <version>
+usage: git drupal add    --prefix <prefix> <extension> <version> [-m <message>] [-q] [--no-commit]
+   or: git drupal move   --prefix <prefix> <extension> [-m <message>] [-q] [--no-commit]
+   or: git drupal remove <extension> [-m <message>] [-q] [--no-commit]
+   or: git drupal update <extension> <version> [-m <message>] [-q] [--no-commit]
 
     -h, --help            show help
     -P, --prefix ...      name of subdirectory where extensions are stored
 
 options for 'add', 'move', 'remove', 'update'
     -m, --message ...     use the given message as the commit message for the merge commit
-    --no-commit           do not commit changes
     -q, --quiet           supress most of the output, always show errors
+    --no-commit           add changes to index but do not commit them
 ```
 
 This script uses a config file called `.drupal` stored it GIT top-level
