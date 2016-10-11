@@ -169,7 +169,6 @@ drupal_extension_version_validate() {
 # extension URL containing of the extension name.
 drupal_extension_url_exists() {
 	local http_status="$(curl --location --output /dev/null --silent --head --fail -A $0 -w %{http_code} $http/$EXTENSION)"
-	say "Looking for '$EXTENSION' $extension_type..."
 
 	if [ $http_status -ne 200 ]; then
 		case "$http_status" in
@@ -177,7 +176,7 @@ drupal_extension_url_exists() {
 			*) die "${extension_type^} URL not accessible (HTTP response: $http_status)" ;;
 		esac
 	else
-		say "[OK] '$EXTENSION' $extension_type found."
+		say "'$EXTENSION' $extension_type found."
 	fi
 }
 
@@ -187,7 +186,6 @@ drupal_extension_url_exists() {
 drupal_version_url_exists() {
 	local archive="$EXTENSION-$VERSION.tar.gz"
 	local ftp_status="$(curl --location --output /dev/null --silent --head --fail -A $0 -w %{http_code} $ftp/$archive)"
-	say "Looking for '$VERSION' version of '$EXTENSION' $extension_type..."
 
 	if [[ $ftp_status -ne 200 ]]; then
 		case "$ftp_status" in
@@ -195,7 +193,7 @@ drupal_version_url_exists() {
 			*) die "Version URL not accessible (HTTP response: $ftp_status)" ;;
 		esac
 	else
-		say "[OK] '$VERSION' version of '$EXTENSION' $extension_type found."
+		say "'$VERSION' version of '$EXTENSION' $extension_type found."
 	fi
 }
 
@@ -214,8 +212,6 @@ drupal_extension_file_get() {
 
 	say "Removing $archive_file..."
 	rm $prefix/$archive_file
-
-	say "[OK]"
 }
 
 # GIT
@@ -440,3 +436,6 @@ cmd_remove() {
 }
 
 "cmd_$command" "$@"
+
+# Success!
+say "${command^} of '$EXTENSION' $extension_type sucessful."
