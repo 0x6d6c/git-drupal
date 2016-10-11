@@ -362,16 +362,16 @@ cmd_update() {
 		drupal_extension_version_validate $2
 	fi
 
+	if ! git_extension_exists; then
+		die "'$EXTENSION' $extension_type does not exists."
+	fi
+
 	extension_type="$(git config --file $config --get extension.$EXTENSION.type)"
 	prefix="$(git config --file $config --get extension.$EXTENSION.prefix)"
 	version_current="$(git config --file $config --get extension.$EXTENSION.version)"
 
-	if git_extension_exists; then
-		if [ "$(git config --file $config --get extension.$EXTENSION.version)" == "$VERSION" ]; then
-			die "You have already the '$VERSION' of '$EXTENSION' $extension_type."
-		fi
-	else
-			die "'$EXTENSION' $extension_type does not exists."
+	if [ "$version_current" == "$VERSION" ]; then
+		die "You have already the '$VERSION' of '$EXTENSION' $extension_type."
 	fi
 
 	drupal_extension_url_exists
@@ -393,7 +393,7 @@ cmd_move() {
 		die "'$EXTENSION' $extension_type does not exists."
 	fi
 
-	local prefix_current="$(git config --file $config --get extension.$EXTENSION.prefix)"
+	prefix_current="$(git config --file $config --get extension.$EXTENSION.prefix)"
 
 	if [ "$prefix_current" == "$prefix" ]; then
 		die "'$EXTENSION' $extension_type exists already within '$prefix'."
