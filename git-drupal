@@ -91,7 +91,6 @@ done
 
 # Supress outputs.
 if [ -n "$quiet" ]; then
-	say >/dev/null
 	flags="--quiet"
 fi
 
