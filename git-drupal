@@ -317,7 +317,7 @@ git_extension_remove() {
 		commit_message="Remove $extension_type '$EXTENSION'
 
 version: $version
-prefix:  $prefix"
+path:    $prefix"
 	fi
 
 	git add $config
