@@ -198,7 +198,7 @@ drupal_extension_file_get() {
 
 # GIT
 #
-# Custom git config file.
+# Custom git config file (/.drupal).
 config="$(git rev-parse --show-toplevel)/.drupal"
 
 # Current branch name.
@@ -216,8 +216,8 @@ git_extension_exists() {
 	fi
 }
 
-# Add extension (module/theme) to git config file (/.drupal), add new files to
-# index and commit changes.
+# Add extension (module/theme) to custom git config file (/.drupal), add new
+# files to index and commit changes.
 git_extension_add() {
 	git config --file $config --add extension.$EXTENSION.name "$EXTENSION"
 	git config --file $config --add extension.$EXTENSION.version "$VERSION"
@@ -236,8 +236,8 @@ git_extension_add() {
 	git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
 }
 
-# Update extension (module/theme) version in git config file (/.drupal), add new
-# files to index and commit changes.
+# Update extension (module/theme) version in custom git config file (/.drupal),
+# add new files to index and commit changes.
 git_extension_update() {
 	git config --file $config extension.$EXTENSION.version "$VERSION"
 	git config --file $config extension.$EXTENSION.branch "$branch"
@@ -256,8 +256,8 @@ new version: $VERSION"
 	git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
 }
 
-# Update extension (module/theme) prefix in git config file (/.drupal) and
-# commit changes.
+# Update extension (module/theme) prefix in custom git config file (/.drupal)
+# and commit changes.
 git_extension_move() {
 	git config --file $config extension.$EXTENSION.branch "$branch"
 	git config --file $config extension.$EXTENSION.prefix "$prefix"
@@ -276,8 +276,8 @@ new path: $prefix"
 	git commit $flags $config $prefix_current/$EXTENSION $prefix/$EXTENSION -m "$commit_message"
 }
 
-# Remove extension (module/theme) from git config file (/.drupal) and commit
-# changes.
+# Remove extension (module/theme) from custom git config file (/.drupal) and
+# commit changes.
 git_extension_remove() {
 	extension_type="$(git config --file $config --get extension.$EXTENSION.type)"
 	git config --file $config --remove-section extension.$EXTENSION
@@ -290,6 +290,11 @@ git_extension_remove() {
 
 	git add $config
 	git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
+}
+
+# Commit removal of custom git config file (/.drupal).
+git_config_remove() {
+  git commit $flags $config -m "Remove '/.drupal' git config file"
 }
 
 cmd_add() {
@@ -363,6 +368,15 @@ cmd_remove() {
 	rm -rf $prefix/$EXTENSION || die "One or more files could not be removed!"
 
 	git_extension_remove
+
+	# Remove custom git config file (/.drupal) if there are no more extensions
+	# in it.
+	if [ $(stat -c %s $config) = 0 ]; then
+		rm $config
+		git_config_remove
+	fi
+
+	git_config_remove
 }
 
 "cmd_$command" "$@"
