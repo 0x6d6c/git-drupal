@@ -92,11 +92,6 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
-# Do not allow to use `--message' and `--no-commit' simultaneously.
-if [ -n "$message" -a -n "$no_commit" ]; then
-	die "It does not make sense to use \`--message' with \`--no-commit'."
-fi
-
 # Supress outputs.
 if [ -n "$quiet" ]; then
 	flags="--quiet"
@@ -112,8 +107,27 @@ esac
 # Require prefix for commands.
 if [ "$command" == "add" -o "$command" == "move" ]; then
 	if [ -z "$prefix" ]; then
-		die "You must provide the --prefix option."
+		die "\`$command' requires --prefix option."
 	fi
+fi
+
+# Ignore prefix for commands.
+if [ "$command" == "remove" -o "$command" == "update" ]; then
+	if [ -n "$prefix" ]; then
+		say "\`$command' command ignores \`--prefix' option."
+	fi
+fi
+
+# Ignore <version> for commands.
+if [ "$command" == "move" -o "$command" == "remove" ]; then
+	if [ $# -ne 1 ]; then
+		say "\`$command' command ignores <version> parameter."
+	fi
+fi
+
+# Do not allow to use `--message' and `--no-commit' simultaneously.
+if [ -n "$message" -a -n "$no_commit" ]; then
+	die "It does not make sense to use \`--message' with \`--no-commit'."
 fi
 
 # Try to determine extension type (module/theme) based on $prefix.
@@ -155,7 +169,6 @@ drupal_extension_version_validate() {
 # extension URL containing of the extension name.
 drupal_extension_url_exists() {
 	local http_status="$(curl --location --output /dev/null --silent --head --fail -A $0 -w %{http_code} $http/$EXTENSION)"
-	say "Looking for '$EXTENSION' $extension_type..."
 
 	if [ $http_status -ne 200 ]; then
 		case "$http_status" in
@@ -163,7 +176,7 @@ drupal_extension_url_exists() {
 			*) die "${extension_type^} URL not accessible (HTTP response: $http_status)" ;;
 		esac
 	else
-		say "[OK] '$EXTENSION' $extension_type found."
+		say "'$EXTENSION' $extension_type found."
 	fi
 }
 
@@ -173,7 +186,6 @@ drupal_extension_url_exists() {
 drupal_version_url_exists() {
 	local archive="$EXTENSION-$VERSION.tar.gz"
 	local ftp_status="$(curl --location --output /dev/null --silent --head --fail -A $0 -w %{http_code} $ftp/$archive)"
-	say "Looking for '$VERSION' version of '$EXTENSION' $extension_type..."
 
 	if [[ $ftp_status -ne 200 ]]; then
 		case "$ftp_status" in
@@ -181,7 +193,7 @@ drupal_version_url_exists() {
 			*) die "Version URL not accessible (HTTP response: $ftp_status)" ;;
 		esac
 	else
-		say "[OK] '$VERSION' version of '$EXTENSION' $extension_type found."
+		say "'$VERSION' version of '$EXTENSION' $extension_type found."
 	fi
 }
 
@@ -200,8 +212,6 @@ drupal_extension_file_get() {
 
 	say "Removing $archive_file..."
 	rm $prefix/$archive_file
-
-	say "[OK]"
 }
 
 # GIT
@@ -238,7 +248,9 @@ git_extension_add() {
 	if [ -n "$message" ]; then
 		commit_message="$message"
 	else
-		commit_message="Add $extension_type '$EXTENSION' $VERSION"
+		commit_message="Add $extension_type '$EXTENSION' $VERSION
+
+path: $prefix"
 	fi
 
 	if [ -z "$no_commit" ]; then
@@ -259,8 +271,8 @@ git_extension_update() {
 	else
 		commit_message="Update $extension_type '$EXTENSION' to $VERSION
 
-old version: $version_current
-new version: $VERSION"
+previous version: $version_current
+current version:  $VERSION"
 	fi
 
 	if [ -z "$no_commit" ]; then
@@ -281,8 +293,8 @@ git_extension_move() {
 	else
 		commit_message="Move $extension_type '$EXTENSION'
 
-old path: $prefix_current
-new path: $prefix"
+previous path: $prefix_current
+current path:  $prefix"
 	fi
 
 	if [ -z "$no_commit" ]; then
@@ -293,13 +305,19 @@ new path: $prefix"
 # Remove extension (module/theme) from custom git config file (/.drupal) and
 # commit changes.
 git_extension_remove() {
+	version="$(git config --file $config --get extension.$EXTENSION.version)"
 	extension_type="$(git config --file $config --get extension.$EXTENSION.type)"
+	prefix="$(git config --file $config --get extension.$EXTENSION.prefix)"
+
 	git config --file $config --remove-section extension.$EXTENSION
 
 	if [ -n "$message" ]; then
 		commit_message="$message"
 	else
-		commit_message="Remove $extension_type '$EXTENSION'"
+		commit_message="Remove $extension_type '$EXTENSION'
+
+version: $version
+path:    $prefix"
 	fi
 
 	git add $config
@@ -344,16 +362,16 @@ cmd_update() {
 		drupal_extension_version_validate $2
 	fi
 
+	if ! git_extension_exists; then
+		die "'$EXTENSION' $extension_type does not exists."
+	fi
+
 	extension_type="$(git config --file $config --get extension.$EXTENSION.type)"
 	prefix="$(git config --file $config --get extension.$EXTENSION.prefix)"
 	version_current="$(git config --file $config --get extension.$EXTENSION.version)"
 
-	if git_extension_exists; then
-		if [ "$(git config --file $config --get extension.$EXTENSION.version)" == "$VERSION" ]; then
-			die "You have already the '$VERSION' of '$EXTENSION' $extension_type."
-		fi
-	else
-			die "'$EXTENSION' $extension_type does not exists."
+	if [ "$version_current" == "$VERSION" ]; then
+		die "You have already the '$VERSION' of '$EXTENSION' $extension_type."
 	fi
 
 	drupal_extension_url_exists
@@ -375,7 +393,7 @@ cmd_move() {
 		die "'$EXTENSION' $extension_type does not exists."
 	fi
 
-	local prefix_current="$(git config --file $config --get extension.$EXTENSION.prefix)"
+	prefix_current="$(git config --file $config --get extension.$EXTENSION.prefix)"
 
 	if [ "$prefix_current" == "$prefix" ]; then
 		die "'$EXTENSION' $extension_type exists already within '$prefix'."
@@ -418,3 +436,6 @@ cmd_remove() {
 }
 
 "cmd_$command" "$@"
+
+# Success!
+say "${command^} of '$EXTENSION' $extension_type sucessful."

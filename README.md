@@ -119,7 +119,8 @@ present in `.drupal` config file.
 1. You may not update (upgrade/downgrade) an extension again to the same
 version.
 1. There is defined a default content of commit messages but you may give your
-own ones by using `-m`/`--message` switch.
+own ones by using `--message` option.
 1. Changes can be added to index but not yet commited by using `--no-commit`
-switch.
+option.
+1. Change log attached.
 1. *coming soon*
