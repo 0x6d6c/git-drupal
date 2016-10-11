@@ -38,17 +38,18 @@ fi
 
 # Script options
 OPTS_SPEC="\
-git drupal add    <extension> <version> --prefix <prefix> [-m <message>] [-q] [--no-commit]
-git drupal move   <extension> --prefix <prefix> [-m <message>] [-q] [--no-commit]
-git drupal remove <extension> [-m <message>] [-q] [--no-commit]
-git drupal update <extension> <version> [-m <message>] [-q] [--no-commit]
+git drupal add    <extension> <version> --prefix <prefix> [-m <message>] [--quiet] [--no-index] [--no-commit]
+git drupal move   <extension> --prefix <prefix> [-m <message>] [--quiet] [--no-index] [--no-commit]
+git drupal remove <extension> [-m <message>] [--quiet] [--no-index] [--no-commit]
+git drupal update <extension> <version> [-m <message>] [--quiet] [--no-index] [--no-commit]
 --
 h,help            show help
 P,prefix=         name of subdirectory where extensions are stored
   options for 'add', 'move', 'remove', 'update'
 m,message=        use the given message as the commit message
 q,quiet           supress most of the output, always show errors
-no-commit         add changes to index but do not commit them
+no-index          do not check in chages to index nor commit them
+no-commit         check in changes to index but do not commit them
 "
 eval "$(echo "$OPTS_SPEC" | git rev-parse --parseopt -- "$@" || echo exit $?)"
 
@@ -73,6 +74,7 @@ fi
 
 prefix=
 message=
+no_index=
 no_commit=
 quiet=
 
@@ -85,6 +87,7 @@ while [ $# -gt 0 ]; do
 				# Trim trailing slash.
 				eval prefix="$(echo "$prefix" | sed 's/\/$//')"; shift ;;
 		-m) message="$1"; shift ;;
+		--no-index) no_index=1 ;;
 		--no-commit) no_commit=1 ;;
 		-q) quiet=1 ;;
 		--) break ;;
@@ -125,8 +128,16 @@ if [ "$command" == "move" -o "$command" == "remove" ]; then
 	fi
 fi
 
-# Do not allow to use `--message' and `--no-commit' simultaneously.
-if [ -n "$message" -a -n "$no_commit" ]; then
+# Do not allow to use `--message', `--no-index' and `--no-commit'
+# simultaneously.
+# Absurd but disallow it anyway
+if [ -n "$message" -a -n "$no_commit" -a -n "$no_index" ]; then
+	die "It does not make sense to use \`--no-index' with \`--no-commit' and with \`--message'."
+elif [ -n "$no_commit" -a -n "$no_index" ]; then
+	die "It does not make sense to use \`--no-commit' with \`--no-index'."
+elif [ -n "$no_index" -a -n "$message" ]; then
+	die "It does not make sense to use \`--message' with \`--no-index'."
+elif [ -n "$message" -a -n "$no_commit" ]; then
 	die "It does not make sense to use \`--message' with \`--no-commit'."
 fi
 
@@ -243,7 +254,9 @@ git_extension_add() {
 	git config --file $config --add extension.$EXTENSION.branch "$branch"
 	git config --file $config --add extension.$EXTENSION.prefix "$prefix"
 
-	git add $config $prefix/$EXTENSION
+	if [ -z "$no_index" ]; then
+		git add $config $prefix/$EXTENSION
+	fi
 
 	if [ -n "$message" ]; then
 		commit_message="$message"
@@ -253,7 +266,7 @@ git_extension_add() {
 path: $prefix"
 	fi
 
-	if [ -z "$no_commit" ]; then
+	if [ -z "$no_index" -a -z "$no_commit" ]; then
 		git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
 	fi
 }
@@ -264,7 +277,9 @@ git_extension_update() {
 	git config --file $config extension.$EXTENSION.version "$VERSION"
 	git config --file $config extension.$EXTENSION.branch "$branch"
 
-	git add $config $prefix/$EXTENSION
+	if [ -z "$no_index" ]; then
+		git add $config $prefix/$EXTENSION
+	fi
 
 	if [ -n "$message" ]; then
 		commit_message="$message"
@@ -275,7 +290,7 @@ previous version: $version_current
 current version:  $VERSION"
 	fi
 
-	if [ -z "$no_commit" ]; then
+	if [ -z "$no_index" -a -z "$no_commit" ]; then
 		git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
 	fi
 }
@@ -286,7 +301,9 @@ git_extension_move() {
 	git config --file $config extension.$EXTENSION.branch "$branch"
 	git config --file $config extension.$EXTENSION.prefix "$prefix"
 
-	git add $config $prefix_current/$EXTENSION $prefix/$EXTENSION
+	if [ -z "$no_index" ]; then
+		git add $config $prefix_current/$EXTENSION $prefix/$EXTENSION
+	fi
 
 	if [ -n "$message" ]; then
 		commit_message="$message"
@@ -297,7 +314,7 @@ previous path: $prefix_current
 current path:  $prefix"
 	fi
 
-	if [ -z "$no_commit" ]; then
+	if [ -z "$no_index" -a -z "$no_commit" ]; then
 		git commit $flags $config $prefix_current/$EXTENSION $prefix/$EXTENSION -m "$commit_message"
 	fi
 }
@@ -309,7 +326,9 @@ git_extension_remove() {
 	extension_type="$(git config --file $config --get extension.$EXTENSION.type)"
 	prefix="$(git config --file $config --get extension.$EXTENSION.prefix)"
 
-	git config --file $config --remove-section extension.$EXTENSION
+	if [ -z "$no_index" ]; then
+		git config --file $config --remove-section extension.$EXTENSION
+	fi
 
 	if [ -n "$message" ]; then
 		commit_message="$message"
@@ -322,14 +341,14 @@ path:    $prefix"
 
 	git add $config
 
-	if [ -z "$no_commit" ]; then
+	if [ -z "$no_index" -a -z "$no_commit" ]; then
 		git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
 	fi
 }
 
 # Commit removal of custom git config file (/.drupal).
 git_config_remove() {
-	if [ -z "$no_commit" ]; then
+	if [ -z "$no_index" -a -z "$no_commit" ]; then
 		git commit $flags $config -m "Remove '/.drupal' git config file"
 	fi
 }

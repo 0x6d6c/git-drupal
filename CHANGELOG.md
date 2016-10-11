@@ -3,6 +3,10 @@ git-drupal -- change log
 
 ### 01.03 - 2016-10-11
 
+#### New
+
+- `--no-index` option: changed files are not checked in to index nor commited
+
 #### Improvements
 
 - Do not allow to use `--message` and `--no-commit` simultaneously (which simply
@@ -17,16 +21,16 @@ readable
 
 ### 01.02 - 2016-10-11
 
-#### Improvements
-
-- Remove `.drupal` file: custom GIT config file (`/.drupal`) is removed if there
-are no more extensions in it
-
 #### New
 
 - `--no-commit` option: changed files are checked in to index but not commited
 - "quiet mode" (`--quiet` option): Most of the output is supressed (e.g. of git
 or wget), errors are always printed
+
+#### Improvements
+
+- Remove `.drupal` file: custom GIT config file (`/.drupal`) is removed if there
+are no more extensions in it
 
 ### 01.01 - 2016-10-11
 
