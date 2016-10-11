@@ -16,8 +16,8 @@ system:
 ## Usage
 
 ```
-usage: git drupal add    --prefix <prefix> <extension> <version> [-m <message>] [-q] [--no-commit]
-   or: git drupal move   --prefix <prefix> <extension> [-m <message>] [-q] [--no-commit]
+usage: git drupal add    <extension> <version> --prefix <prefix> [-m <message>] [-q] [--no-commit]
+   or: git drupal move   <extension> --prefix <prefix> [-m <message>] [-q] [--no-commit]
    or: git drupal remove <extension> [-m <message>] [-q] [--no-commit]
    or: git drupal update <extension> <version> [-m <message>] [-q] [--no-commit]
 

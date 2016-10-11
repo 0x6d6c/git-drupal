@@ -38,8 +38,8 @@ fi
 
 # Script options
 OPTS_SPEC="\
-git drupal add    --prefix <prefix> <extension> <version> [-m <message>] [-q] [--no-commit]
-git drupal move   --prefix <prefix> <extension> [-m <message>] [-q] [--no-commit]
+git drupal add    <extension> <version> --prefix <prefix> [-m <message>] [-q] [--no-commit]
+git drupal move   <extension> --prefix <prefix> [-m <message>] [-q] [--no-commit]
 git drupal remove <extension> [-m <message>] [-q] [--no-commit]
 git drupal update <extension> <version> [-m <message>] [-q] [--no-commit]
 --
