@@ -47,6 +47,7 @@ h,help            show help
 P,prefix=         name of subdirectory where extensions are stored
   options for 'add', 'move', 'remove', 'update'
 m,message=        use the given message as the commit message for the merge commit
+no-commit         do not commit changes
 q,quiet           supress most of the output, always show errors
 "
 eval "$(echo "$OPTS_SPEC" | git rev-parse --parseopt -- "$@" || echo exit $?)"
@@ -72,6 +73,7 @@ fi
 
 prefix=
 message=
+no_commit=
 quiet=
 
 #echo "Options: $*"
@@ -83,6 +85,7 @@ while [ $# -gt 0 ]; do
 				# Trim trailing slash.
 				eval prefix="$(echo "$prefix" | sed 's/\/$//')"; shift ;;
 		-m) message="$1"; shift ;;
+		--no-commit) no_commit=1 ;;
 		-q) quiet=1 ;;
 		--) break ;;
 		*) die "Unexpected option: $opt" ;;
@@ -233,7 +236,9 @@ git_extension_add() {
 		commit_message="Add $extension_type '$EXTENSION' $VERSION"
 	fi
 
-	git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
+	if [ -z "$no_commit" ]; then
+		git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
+	fi
 }
 
 # Update extension (module/theme) version in custom git config file (/.drupal),
@@ -253,7 +258,9 @@ old version: $version_current
 new version: $VERSION"
 	fi
 
-	git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
+	if [ -z "$no_commit" ]; then
+		git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
+	fi
 }
 
 # Update extension (module/theme) prefix in custom git config file (/.drupal)
@@ -273,7 +280,9 @@ old path: $prefix_current
 new path: $prefix"
 	fi
 
-	git commit $flags $config $prefix_current/$EXTENSION $prefix/$EXTENSION -m "$commit_message"
+	if [ -z "$no_commit" ]; then
+		git commit $flags $config $prefix_current/$EXTENSION $prefix/$EXTENSION -m "$commit_message"
+	fi
 }
 
 # Remove extension (module/theme) from custom git config file (/.drupal) and
@@ -289,12 +298,17 @@ git_extension_remove() {
 	fi
 
 	git add $config
-	git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
+
+	if [ -z "$no_commit" ]; then
+		git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
+	fi
 }
 
 # Commit removal of custom git config file (/.drupal).
 git_config_remove() {
-  git commit $flags $config -m "Remove '/.drupal' git config file"
+	if [ -z "$no_commit" ]; then
+		git commit $flags $config -m "Remove '/.drupal' git config file"
+	fi
 }
 
 cmd_add() {
@@ -309,6 +323,7 @@ cmd_add() {
 	drupal_extension_url_exists
 	drupal_version_url_exists
 	drupal_extension_file_get
+
 	git_extension_add
 }
 
@@ -331,6 +346,7 @@ cmd_update() {
 	drupal_version_url_exists
 	requirements
 	drupal_extension_file_get
+
 	git_extension_update
 }
 
@@ -353,7 +369,9 @@ cmd_move() {
 
 	mv $prefix_current/$EXTENSION $prefix/ || die "One or more files could not be moved!"
 
-	git_extension_move
+	if [ -z "$no_commit" ]; then
+		git_extension_move
+	fi
 }
 
 cmd_remove() {
@@ -375,8 +393,6 @@ cmd_remove() {
 		rm $config
 		git_config_remove
 	fi
-
-	git_config_remove
 }
 
 "cmd_$command" "$@"
