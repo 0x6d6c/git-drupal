@@ -170,7 +170,7 @@ drupal_extension_version_validate() {
 drupal_extension_url_exists() {
 	local http_status="$(curl --location --output /dev/null --silent --head --fail -A $0 -w %{http_code} $http/$EXTENSION)"
 
-	if [ $http_status -ne 200 ]; then
+	if [ "$http_status" -ne 200 ]; then
 		case "$http_status" in
 			404) die "'$EXTENSION' $extension_type not found." ;;
 			*) die "${extension_type^} URL not accessible (HTTP response: $http_status)" ;;
@@ -187,7 +187,7 @@ drupal_version_url_exists() {
 	local archive="$EXTENSION-$VERSION.tar.gz"
 	local ftp_status="$(curl --location --output /dev/null --silent --head --fail -A $0 -w %{http_code} $ftp/$archive)"
 
-	if [[ $ftp_status -ne 200 ]]; then
+	if [ "$ftp_status" -ne 200 ]; then
 		case "$ftp_status" in
 			404) die "'$VERSION' version of '$EXTENSION' $extension_type not found." ;;
 			*) die "Version URL not accessible (HTTP response: $ftp_status)" ;;
@@ -429,7 +429,7 @@ cmd_remove() {
 
 	# Remove custom git config file (/.drupal) if there are no more extensions
 	# in it.
-	if [ $(stat -c %s $config) -eq 0 ]; then
+	if [ "$(stat -c %s $config)" -eq 0 ]; then
 		rm $config
 		git_config_remove
 	fi
