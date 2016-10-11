@@ -394,7 +394,7 @@ cmd_remove() {
 
 	# Remove custom git config file (/.drupal) if there are no more extensions
 	# in it.
-	if [ $(stat -c %s $config) = 0 ]; then
+	if [ $(stat -c %s $config) -eq 0 ]; then
 		rm $config
 		git_config_remove
 	fi
