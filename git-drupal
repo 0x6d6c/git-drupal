@@ -24,7 +24,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 # Add git core programs to $PATH.
 PATH=$PATH:$(git --exec-path)
 # Include git scriplet
@@ -195,7 +194,7 @@ drupal_extension_file_get() {
 config="$(git rev-parse --show-toplevel)/.drupal"
 
 # Current branch name.
-branch="$(git status | grep -e '^On branch' | awk '{ print $3 }')"
+branch="$(git rev-parse --abbrev-ref HEAD)"
 
 # This helper function checks wheter extension (module/theme) has been already
 # added. It returns only TRUE or FALSE because errors depend on commands, e.g.
@@ -233,6 +232,7 @@ git_extension_add() {
 # files to index and commit changes.
 git_extension_update() {
 	git config --file $config extension.$EXTENSION.version "$VERSION"
+	git config --file $config extension.$EXTENSION.branch "$branch"
 
 	git add $config $prefix/$EXTENSION
 
@@ -251,6 +251,7 @@ new version: $VERSION"
 # Update extension (module/theme) prefix in git config file (/.drupal) and
 # commit changes.
 git_extension_move() {
+	git config --file $config extension.$EXTENSION.branch "$branch"
 	git config --file $config extension.$EXTENSION.prefix "$prefix"
 
 	git add $config $prefix_current/$EXTENSION $prefix/$EXTENSION
