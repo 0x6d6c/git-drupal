@@ -92,6 +92,11 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
+# Do not allow to use `--message' and `--no-commit' simultaneously.
+if [ -n "$message" -a -n "$no_commit" ]; then
+	die "It does not make sense to use \`--message' with \`--no-commit'."
+fi
+
 # Supress outputs.
 if [ -n "$quiet" ]; then
 	flags="--quiet"
