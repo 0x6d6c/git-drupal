@@ -38,15 +38,15 @@ fi
 
 # Script options
 OPTS_SPEC="\
-git drupal add    --prefix <prefix> <extension> <version> [-m <message>] [-q] [--no-commit]
-git drupal move   --prefix <prefix> <extension> [-m <message>] [-q] [--no-commit]
+git drupal add    <extension> <version> --prefix <prefix> [-m <message>] [-q] [--no-commit]
+git drupal move   <extension> --prefix <prefix> [-m <message>] [-q] [--no-commit]
 git drupal remove <extension> [-m <message>] [-q] [--no-commit]
 git drupal update <extension> <version> [-m <message>] [-q] [--no-commit]
 --
 h,help            show help
 P,prefix=         name of subdirectory where extensions are stored
   options for 'add', 'move', 'remove', 'update'
-m,message=        use the given message as the commit message for the merge commit
+m,message=        use the given message as the commit message
 q,quiet           supress most of the output, always show errors
 no-commit         add changes to index but do not commit them
 "
@@ -230,13 +230,12 @@ git_extension_add() {
 
 	git add $config $prefix/$EXTENSION
 
-	if [ -n "$message" ]; then
-		commit_message="$message"
-	else
-		commit_message="Add $extension_type '$EXTENSION' $VERSION"
-	fi
-
 	if [ -z "$no_commit" ]; then
+		if [ -n "$message" ]; then
+			commit_message="$message"
+		else
+			commit_message="Add $extension_type '$EXTENSION' $VERSION"
+		fi
 		git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
 	fi
 }
@@ -249,16 +248,15 @@ git_extension_update() {
 
 	git add $config $prefix/$EXTENSION
 
-	if [ -n "$message" ]; then
-		commit_message="$message"
-	else
-		commit_message="Update $extension_type '$EXTENSION' to $VERSION
+	if [ -z "$no_commit" ]; then
+		if [ -n "$message" ]; then
+			commit_message="$message"
+		else
+			commit_message="Update $extension_type '$EXTENSION' to $VERSION
 
 old version: $version_current
 new version: $VERSION"
-	fi
-
-	if [ -z "$no_commit" ]; then
+		fi
 		git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
 	fi
 }
@@ -271,16 +269,15 @@ git_extension_move() {
 
 	git add $config $prefix_current/$EXTENSION $prefix/$EXTENSION
 
-	if [ -n "$message" ]; then
-		commit_message="$message"
-	else
-		commit_message="Move $extension_type '$EXTENSION'
+	if [ -z "$no_commit" ]; then
+		if [ -n "$message" ]; then
+			commit_message="$message"
+		else
+			commit_message="Move $extension_type '$EXTENSION'
 
 old path: $prefix_current
 new path: $prefix"
-	fi
-
-	if [ -z "$no_commit" ]; then
+		fi
 		git commit $flags $config $prefix_current/$EXTENSION $prefix/$EXTENSION -m "$commit_message"
 	fi
 }
@@ -291,15 +288,14 @@ git_extension_remove() {
 	extension_type="$(git config --file $config --get extension.$EXTENSION.type)"
 	git config --file $config --remove-section extension.$EXTENSION
 
-	if [ -n "$message" ]; then
-		commit_message="$message"
-	else
-		commit_message="Remove $extension_type '$EXTENSION'"
-	fi
-
 	git add $config
 
 	if [ -z "$no_commit" ]; then
+		if [ -n "$message" ]; then
+			commit_message="$message"
+		else
+			commit_message="Remove $extension_type '$EXTENSION'"
+		fi
 		git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
 	fi
 }
