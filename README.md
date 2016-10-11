@@ -26,6 +26,7 @@ usage: git drupal add    --prefix <prefix> <extension> <version>
 
 options for 'add', 'move', 'remove', 'update'
     -m, --message ...     use the given message as the commit message for the merge commit
+    -q, --quiet           supress most of the output, always show errors
 ```
 
 This script uses a config file called `.drupal` stored it GIT top-level

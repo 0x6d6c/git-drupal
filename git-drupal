@@ -47,7 +47,7 @@ h,help            show help
 P,prefix=         name of subdirectory where extensions are stored
   options for 'add', 'move', 'remove', 'update'
 m,message=        use the given message as the commit message for the merge commit
-q,quiet           show only errors
+q,quiet           supress most of the output, always show errors
 "
 eval "$(echo "$OPTS_SPEC" | git rev-parse --parseopt -- "$@" || echo exit $?)"
 
