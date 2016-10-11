@@ -92,11 +92,6 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
-# Do not allow to use `--message' and `--no-commit' simultaneously.
-if [ -n "$message" -a -n "$no_commit" ]; then
-	die "It does not make sense to use \`--message' with \`--no-commit'."
-fi
-
 # Supress outputs.
 if [ -n "$quiet" ]; then
 	flags="--quiet"
@@ -112,8 +107,27 @@ esac
 # Require prefix for commands.
 if [ "$command" == "add" -o "$command" == "move" ]; then
 	if [ -z "$prefix" ]; then
-		die "You must provide the --prefix option."
+		die "\`$command' requires --prefix option."
 	fi
+fi
+
+# Ignore prefix for commands.
+if [ "$command" == "remove" -o "$command" == "update" ]; then
+	if [ -n "$prefix" ]; then
+		say "\`$command' command ignores \`--prefix' option."
+	fi
+fi
+
+# Ignore <version> for commands.
+if [ "$command" == "move" -o "$command" == "remove" ]; then
+	if [ $# -ne 1 ]; then
+		say "\`$command' command ignores <version> parameter."
+	fi
+fi
+
+# Do not allow to use `--message' and `--no-commit' simultaneously.
+if [ -n "$message" -a -n "$no_commit" ]; then
+	die "It does not make sense to use \`--message' with \`--no-commit'."
 fi
 
 # Try to determine extension type (module/theme) based on $prefix.
