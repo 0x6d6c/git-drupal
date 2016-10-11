@@ -230,12 +230,13 @@ git_extension_add() {
 
 	git add $config $prefix/$EXTENSION
 
+	if [ -n "$message" ]; then
+		commit_message="$message"
+	else
+		commit_message="Add $extension_type '$EXTENSION' $VERSION"
+	fi
+
 	if [ -z "$no_commit" ]; then
-		if [ -n "$message" ]; then
-			commit_message="$message"
-		else
-			commit_message="Add $extension_type '$EXTENSION' $VERSION"
-		fi
 		git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
 	fi
 }
@@ -248,15 +249,16 @@ git_extension_update() {
 
 	git add $config $prefix/$EXTENSION
 
-	if [ -z "$no_commit" ]; then
-		if [ -n "$message" ]; then
-			commit_message="$message"
-		else
-			commit_message="Update $extension_type '$EXTENSION' to $VERSION
+	if [ -n "$message" ]; then
+		commit_message="$message"
+	else
+		commit_message="Update $extension_type '$EXTENSION' to $VERSION
 
 old version: $version_current
 new version: $VERSION"
-		fi
+	fi
+
+	if [ -z "$no_commit" ]; then
 		git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
 	fi
 }
@@ -269,15 +271,16 @@ git_extension_move() {
 
 	git add $config $prefix_current/$EXTENSION $prefix/$EXTENSION
 
-	if [ -z "$no_commit" ]; then
-		if [ -n "$message" ]; then
-			commit_message="$message"
-		else
-			commit_message="Move $extension_type '$EXTENSION'
+	if [ -n "$message" ]; then
+		commit_message="$message"
+	else
+		commit_message="Move $extension_type '$EXTENSION'
 
 old path: $prefix_current
 new path: $prefix"
-		fi
+	fi
+
+	if [ -z "$no_commit" ]; then
 		git commit $flags $config $prefix_current/$EXTENSION $prefix/$EXTENSION -m "$commit_message"
 	fi
 }
@@ -288,14 +291,15 @@ git_extension_remove() {
 	extension_type="$(git config --file $config --get extension.$EXTENSION.type)"
 	git config --file $config --remove-section extension.$EXTENSION
 
+	if [ -n "$message" ]; then
+		commit_message="$message"
+	else
+		commit_message="Remove $extension_type '$EXTENSION'"
+	fi
+
 	git add $config
 
 	if [ -z "$no_commit" ]; then
-		if [ -n "$message" ]; then
-			commit_message="$message"
-		else
-			commit_message="Remove $extension_type '$EXTENSION'"
-		fi
 		git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
 	fi
 }
