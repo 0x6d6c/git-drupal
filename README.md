@@ -47,7 +47,7 @@ possible to "share" this file with other contributors.
 
 #### git drupal add
 ```
-<extension> <version> --prefix <prefix> [-m <message>] [--quiet] [--no-index] [--no-commit]
+git drupal add <extension> <version> --prefix <prefix> [-m <message>] [--quiet] [--no-index] [--no-commit]
 ```
 
 Adds a new contributed extension (module/theme) to the repository.
