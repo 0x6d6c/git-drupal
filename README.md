@@ -25,7 +25,7 @@ usage: git drupal add    --prefix <prefix> <extension> <version> [-m <message>] 
     -P, --prefix ...      name of subdirectory where extensions are stored
 
 options for 'add', 'move', 'remove', 'update'
-    -m, --message ...     use the given message as the commit message for the merge commit
+    -m, --message ...     use the given message as the commit message
     -q, --quiet           supress most of the output, always show errors
     --no-commit           add changes to index but do not commit them
 ```
@@ -118,6 +118,8 @@ extension is considered as "theme".
 present in `.drupal` config file.
 1. You may not update (upgrade/downgrade) an extension again to the same
 version.
-1. There is definied a default content of commit messages but you may use your
-own using `-m`/`--message` switch.
+1. There is defined a default content of commit messages but you may give your
+own ones by using `-m`/`--message` switch.
+1. Changes can be added to index but not yet commited by using `--no-commit`
+switch.
 1. *coming soon*
