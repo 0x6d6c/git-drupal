@@ -118,6 +118,8 @@ extension is considered as "theme".
 present in `.drupal` config file.
 1. You may not update (upgrade/downgrade) an extension again to the same
 version.
-1. There is definied a default content of commit messages but you may use your
-own using `-m`/`--message` switch.
+1. There is defined a default content of commit messages but you may give your
+own ones by using `-m`/`--message` switch.
+1. Changes can be added to index but not yet commited by using `--no-commit`
+switch.
 1. *coming soon*
