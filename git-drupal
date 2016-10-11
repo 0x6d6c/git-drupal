@@ -47,6 +47,7 @@ h,help            show help
 P,prefix=         name of subdirectory where extensions are stored
   options for 'add', 'move', 'remove', 'update'
 m,message=        use the given message as the commit message for the merge commit
+q,quiet           show only errors
 "
 eval "$(echo "$OPTS_SPEC" | git rev-parse --parseopt -- "$@" || echo exit $?)"
 
@@ -71,6 +72,7 @@ fi
 
 prefix=
 message=
+quiet=
 
 #echo "Options: $*"
 while [ $# -gt 0 ]; do
@@ -81,10 +83,17 @@ while [ $# -gt 0 ]; do
 				# Trim trailing slash.
 				eval prefix="$(echo "$prefix" | sed 's/\/$//')"; shift ;;
 		-m) message="$1"; shift ;;
+		-q) quiet=1 ;;
 		--) break ;;
 		*) die "Unexpected option: $opt" ;;
 	esac
 done
+
+# Supress outputs.
+if [ -n "$quiet" ]; then
+	say >/dev/null
+	flags="--quiet"
+fi
 
 command="$1"
 shift
@@ -177,7 +186,7 @@ drupal_extension_file_get() {
 	fi
 
 	say "Downloading $archive_file..."
-	wget --directory-prefix=$prefix $ftp/$archive_file
+	wget $flags --directory-prefix=$prefix $ftp/$archive_file
 
 	say "Unpacking $archive_file..."
 	tar --directory=$prefix -xf $prefix/$archive_file
@@ -225,7 +234,7 @@ git_extension_add() {
 		commit_message="Add $extension_type '$EXTENSION' $VERSION"
 	fi
 
-	git commit $config $prefix/$EXTENSION -m "$commit_message"
+	git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
 }
 
 # Update extension (module/theme) version in git config file (/.drupal), add new
@@ -245,7 +254,7 @@ old version: $version_current
 new version: $VERSION"
 	fi
 
-	git commit $config $prefix/$EXTENSION -m "$commit_message"
+	git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
 }
 
 # Update extension (module/theme) prefix in git config file (/.drupal) and
@@ -265,7 +274,7 @@ old path: $prefix_current
 new path: $prefix"
 	fi
 
-	git commit $config $prefix_current/$EXTENSION $prefix/$EXTENSION -m "$commit_message"
+	git commit $flags $config $prefix_current/$EXTENSION $prefix/$EXTENSION -m "$commit_message"
 }
 
 # Remove extension (module/theme) from git config file (/.drupal) and commit
@@ -281,7 +290,7 @@ git_extension_remove() {
 	fi
 
 	git add $config
-	git commit $config $prefix/$EXTENSION -m "$commit_message"
+	git commit $flags $config $prefix/$EXTENSION -m "$commit_message"
 }
 
 cmd_add() {
