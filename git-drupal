@@ -238,7 +238,9 @@ git_extension_add() {
 	if [ -n "$message" ]; then
 		commit_message="$message"
 	else
-		commit_message="Add $extension_type '$EXTENSION' $VERSION"
+		commit_message="Add $extension_type '$EXTENSION' $VERSION
+
+path: $prefix"
 	fi
 
 	if [ -z "$no_commit" ]; then
@@ -259,8 +261,8 @@ git_extension_update() {
 	else
 		commit_message="Update $extension_type '$EXTENSION' to $VERSION
 
-old version: $version_current
-new version: $VERSION"
+previous version: $version_current
+current version:  $VERSION"
 	fi
 
 	if [ -z "$no_commit" ]; then
@@ -281,8 +283,8 @@ git_extension_move() {
 	else
 		commit_message="Move $extension_type '$EXTENSION'
 
-old path: $prefix_current
-new path: $prefix"
+previous path: $prefix_current
+current path:  $prefix"
 	fi
 
 	if [ -z "$no_commit" ]; then
@@ -293,13 +295,19 @@ new path: $prefix"
 # Remove extension (module/theme) from custom git config file (/.drupal) and
 # commit changes.
 git_extension_remove() {
+	version="$(git config --file $config --get extension.$EXTENSION.version)"
 	extension_type="$(git config --file $config --get extension.$EXTENSION.type)"
+	prefix="$(git config --file $config --get extension.$EXTENSION.prefix)"
+
 	git config --file $config --remove-section extension.$EXTENSION
 
 	if [ -n "$message" ]; then
 		commit_message="$message"
 	else
-		commit_message="Remove $extension_type '$EXTENSION'"
+		commit_message="Remove $extension_type '$EXTENSION'
+
+version: $version
+prefix:  $prefix"
 	fi
 
 	git add $config
