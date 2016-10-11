@@ -317,8 +317,12 @@ git_config_remove() {
 }
 
 cmd_add() {
-	drupal_extension_name_validate $1
-	drupal_extension_version_validate $2
+	if [ $# -ne 2 ]; then
+		die "You must provide <extension> and <version>."
+	else
+		drupal_extension_name_validate $1
+		drupal_extension_version_validate $2
+	fi
 
 	if git_extension_exists; then
 		die "'$EXTENSION' $extension_type already exists."
@@ -333,8 +337,13 @@ cmd_add() {
 }
 
 cmd_update() {
-	drupal_extension_name_validate $1
-	drupal_extension_version_validate $2
+	if [ $# -ne 2 ]; then
+		die "You must provide <extension> and <version>."
+	else
+		drupal_extension_name_validate $1
+		drupal_extension_version_validate $2
+	fi
+
 	extension_type="$(git config --file $config --get extension.$EXTENSION.type)"
 	prefix="$(git config --file $config --get extension.$EXTENSION.prefix)"
 	version_current="$(git config --file $config --get extension.$EXTENSION.version)"
@@ -356,7 +365,11 @@ cmd_update() {
 }
 
 cmd_move() {
-	drupal_extension_name_validate $1
+	if [ $# -eq 0 ]; then
+		die "You must provide <extension>."
+	else
+		drupal_extension_name_validate $1
+	fi
 
 	if ! git_extension_exists; then
 		die "'$EXTENSION' $extension_type does not exists."
@@ -380,7 +393,11 @@ cmd_move() {
 }
 
 cmd_remove() {
-	drupal_extension_name_validate $1
+	if [ $# -eq 0 ]; then
+		die "You must provide <extension>."
+	else
+		drupal_extension_name_validate $1
+	fi
 
 	if ! git_extension_exists; then
 		die "'$EXTENSION' $extension_type does not exists."
